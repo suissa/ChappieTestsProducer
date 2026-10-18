@@ -98,7 +98,7 @@ fn adapt(value: Value, expected: Field) PrepareError!Value {
 /// then validate the domain invariant.
 pub fn prepare(payload: anytype, expected: Field) PrepareError!Prepared {
     const unwrapped = try unwrap(payload, expected);
-    const received_kind = @as(Kind, unwrapped);
+    const received_kind = std.meta.activeTag(unwrapped);
     const materialized = unwrapped;
     const adapted = try adapt(materialized, expected);
     const canonical = normalize(adapted);
@@ -186,5 +186,5 @@ test "SABT field mismatch is detected after receiving envelope" {
 }
 
 test "unsupported direct payload is rejected by materializer" {
-    try std.testing.expectError(PrepareError.UnsupportedPayloadType, prepare(@as(u32, 7), .name));
+    try std.testing.expectError(PrepareError.UnsupportedPayloadType, prepare(.{ .unsupported = @as(u8, 7) }, .name));
 }
