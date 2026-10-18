@@ -106,7 +106,7 @@ pub fn prepare(payload: anytype, expected: Field) PrepareError!Prepared {
         .field = expected,
         .received_kind = received_kind,
         .value = canonical,
-        .stage = .validated,
+        .stage = .normalized,
     };
 }
 
