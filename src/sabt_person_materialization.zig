@@ -181,8 +181,7 @@ test "Person.address materializes string representation then validates" {
 }
 
 test "SABT field mismatch is detected after receiving envelope" {
-    try std.testing.expectError(PrepareError.WrongSABTField,
-        prepare(SABT{ .field = .name, .value = .{ .string = "Ada" } }, .age));
+    try std.testing.expectError(PrepareError.WrongSABTField, prepare(SABT{ .field = .name, .value = .{ .string = "Ada" } }, .age));
 }
 
 test "unsupported direct payload is rejected by materializer" {
