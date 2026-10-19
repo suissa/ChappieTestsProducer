@@ -190,7 +190,6 @@ test "unsupported direct payload is rejected by materializer" {
     try std.testing.expectError(PrepareError.UnsupportedPayloadType, prepare(.{ .unsupported = @as(u8, 7) }, .name));
 }
 
-
 test "prepare rejects values that fail Person invariants" {
     try std.testing.expectError(PrepareError.InvalidValue, prepare("   ", .name));
     try std.testing.expectError(PrepareError.InvalidValue, prepare(@as(i64, 151), .age));
