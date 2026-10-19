@@ -102,12 +102,14 @@ pub fn prepare(payload: anytype, expected: Field) PrepareError!Prepared {
     const materialized = unwrapped;
     const adapted = try adapt(materialized, expected);
     const canonical = normalize(adapted);
-    return .{
+    const prepared: Prepared = .{
         .field = expected,
         .received_kind = received_kind,
         .value = canonical,
-        .stage = .normalized,
+        .stage = .validated,
     };
+    if (validate(prepared) == .invalid) return PrepareError.InvalidValue;
+    return prepared;
 }
 
 pub fn validate(prepared: Prepared) Validation {
@@ -186,4 +188,17 @@ test "SABT field mismatch is detected after receiving envelope" {
 
 test "unsupported direct payload is rejected by materializer" {
     try std.testing.expectError(PrepareError.UnsupportedPayloadType, prepare(.{ .unsupported = @as(u8, 7) }, .name));
+}
+
+
+test "prepare rejects values that fail Person invariants" {
+    try std.testing.expectError(PrepareError.InvalidValue, prepare("   ", .name));
+    try std.testing.expectError(PrepareError.InvalidValue, prepare(@as(i64, 151), .age));
+    try std.testing.expectError(PrepareError.InvalidValue, prepare("not-an-email", .email));
+    try std.testing.expectError(PrepareError.InvalidValue, prepare("123", .cpf));
+}
+
+test "prepare marks successful values as validated" {
+    const result = try prepare("Ada", .name);
+    try std.testing.expectEqual(Stage.validated, result.stage);
 }
