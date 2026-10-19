@@ -14,7 +14,7 @@ flowchart TD
     F --> G["Normalize representation"]
     G --> H["Validate Person invariant"]
     H -->|valid| I["Return prepared value to caller"]
-    H -->|invalid| J["Reject with evidence"]
+    H -->|invalid| J["Return InvalidValue"]
 ```
 
 ## Person field paths
@@ -39,5 +39,6 @@ The current implementation is intentionally conservative: age has explicit numer
 - `resolve kind` describes what actually arrived.
 - `adapt` traverses only explicitly allowed conversion edges.
 - `normalize` canonicalizes representation without asserting domain validity.
-- `validate` checks the target field's current invariant.
-- The runtime remains the authority for Action execution and final test outcomes.
+- `validate` checks the target field's current invariant; `prepare` invokes it and returns `InvalidValue` when the invariant fails.
+- Successful `prepare` results are marked `Stage.validated`; invalid prepared values are not returned.
+- The runtime remains the authority for Action execution and final test outcomes. The current validation error is typed but does not yet carry structured evidence describing which invariant failed.
